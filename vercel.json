@@ -4,8 +4,8 @@
     { "src": "frontend/package.json", "use": "@vercel/vite" },
     { "src": "backend/index.js", "use": "@vercel/node" }
   ],
-  "routes": [
-    { "src": "/api/(.*)", "dest": "backend/index.js" },
-    { "src": "/(.*)", "dest": "frontend/dist/$1" }
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/backend/index.js" },
+    { "source": "/(.*)", "destination": "/frontend/$1" }
   ]
 }
