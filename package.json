@@ -1,7 +1,0 @@
-{
-  "name": "todo-app-mini-project",
-  "version": "1.0.0",
-  "scripts": {
-    "build": "cd frontend && npm install && npm run build"
-  }
-}
