@@ -6,17 +6,15 @@ function App() {
   const [todos, setTodos] = useState([]);
   const [inputText, setInputText] = useState('');
   
-  // 수정 기능 State
   const [editingId, setEditingId] = useState(null);
   const [editText, setEditText] = useState('');
 
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [useDday, setUseDday] = useState(false); // D-day 체크박스
-  const [dDayDate, setDdayDate] = useState(''); // 달력에서 선택한 날짜
+  const [useDday, setUseDday] = useState(false); 
+  const [dDayDate, setDdayDate] = useState(''); 
 
   const API_URL = import.meta.env.PROD ? '/api/todos' : 'http://localhost:5000/api/todos';
 
-  // ⏰ 1. 실시간 시계 작동 (1초마다 업데이트)
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
@@ -39,7 +37,6 @@ function App() {
     e.preventDefault(); 
     if (!inputText.trim()) return;
     
-    // D-Day 체크박스가 켜져 있으면 날짜를 넣고, 아니면 null을 보냄
     const newTodoData = { 
       title: inputText,
       dueDate: useDday && dDayDate ? dDayDate : null 
@@ -49,7 +46,7 @@ function App() {
       const res = await axios.post(API_URL, newTodoData);
       setTodos([...todos, res.data]); 
       setInputText(''); 
-      setUseDday(false); // 입력 후 달력 초기화
+      setUseDday(false); 
       setDdayDate('');
     } catch (error) {
       console.error('추가 실패:', error);
@@ -82,8 +79,10 @@ function App() {
   const saveEdit = async (id) => {
     if (!editText.trim()) return; 
     try {
-      // 제목만 수정해도 백엔드의 timestamps 덕분에 updatedAt이 자동으로 갱신됩니다!
-      const res = await axios.put(`${API_URL}/${id}`, { title: editText });
+      const res = await axios.put(`${API_URL}/${id}`, { 
+        title: editText,
+        editedAt: new Date()
+      });
       setTodos(todos.map(todo => (todo._id === id ? res.data : todo)));
       setEditingId(null); 
     } catch (error) {
@@ -91,23 +90,21 @@ function App() {
     }
   };
 
-  // D-Day 계산 함수
   const calculateDday = (targetDate) => {
     if (!targetDate) return null;
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // 오늘 자정 기준
+    today.setHours(0, 0, 0, 0); 
     const target = new Date(targetDate);
     target.setHours(0, 0, 0, 0);
     
     const diffTime = target - today;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
-    if (diffDays === 0) return { text: 'D-Day', color: 'bg-red-500' };
-    if (diffDays > 0) return { text: `D-${diffDays}`, color: 'bg-blue-500' };
-    return { text: `D+${Math.abs(diffDays)}`, color: 'bg-gray-500' }; // 지났을 경우
+    if (diffDays === 0) return { text: '🔥 D-Day!', color: 'bg-red-600 ring-4 ring-red-200 animate-pulse' };
+    if (diffDays > 0) return { text: `D-${diffDays}`, color: 'bg-cyan-600 shadow-md border-2 border-cyan-200' };
+    return { text: `D+${Math.abs(diffDays)}`, color: 'bg-gray-500 opacity-80' }; 
   };
 
-  // 날짜 예쁘게 표시해 주는 함수 (등록/수정 시간)
   const formatDate = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
@@ -120,7 +117,6 @@ function App() {
     <div className="min-h-screen bg-slate-100 py-10 flex justify-center">
       <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl p-8 h-fit relative">
         
-        {/* 우측 상단 실시간 시계 */}
         <div className="absolute top-6 right-8 text-right">
           <p className="text-sm font-bold text-cyan-800">{currentTime.toLocaleDateString('ko-KR')}</p>
           <p className="text-2xl font-black text-slate-700 font-mono tracking-tighter">
@@ -138,7 +134,6 @@ function App() {
           </p>
         </div>
         
-        {/* 입력 폼 영역 */}
         <form onSubmit={addTodo} className="flex flex-col mb-8 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200">
           <div className="flex gap-3">
             <input 
@@ -156,7 +151,6 @@ function App() {
             </button>
           </div>
           
-          {/* D-Day 설정 옵션 */}
           <div className="flex items-center gap-3 mt-2 pl-2">
             <label className="flex items-center cursor-pointer text-slate-600 font-medium">
               <input 
@@ -199,24 +193,33 @@ function App() {
                     </div>
                   ) : (
                     <>
-                      <div className="flex items-center cursor-pointer flex-1 break-all" onClick={() => toggleTodo(todo._id, todo.completed)}>
+                      {/* 👇 여기서 부모 div의 클릭 이벤트를 빼고 텍스트 커서 모양을 기본으로 바꿨습니다! */}
+                      <div className="flex items-center flex-1 break-all">
+                        {/* 👇 클릭 이벤트(onChange)를 오직 이 체크박스에만 부여했습니다! */}
                         <input 
                           type="checkbox" 
                           checked={todo.completed} 
-                          readOnly
+                          onChange={() => toggleTodo(todo._id, todo.completed)} 
                           className="w-6 h-6 text-cyan-700 cursor-pointer mr-4 accent-cyan-700 shrink-0"
                         />
                         <div className="flex flex-col">
-                          {/* 제목 및 D-Day 배지 */}
                           <div className="flex items-center gap-3 flex-wrap">
-                            <span className={`text-xl font-semibold ${todo.completed ? 'line-through text-slate-400' : 'text-slate-800'}`}>
-                              {todo.title}
-                            </span>
                             {dDayInfo && !todo.completed && (
-                              <span className={`${dDayInfo.color} text-white text-xs font-bold px-2 py-1 rounded-full shadow-sm`}>
+                              <span className={`${dDayInfo.color} text-white text-sm font-extrabold px-3 py-1.5 rounded-lg tracking-wide`}>
                                 {dDayInfo.text}
                               </span>
                             )}
+                            
+                            <div className="flex items-center gap-2">
+                              <span className={`text-xl font-semibold ${todo.completed ? 'line-through text-slate-400' : 'text-slate-800'}`}>
+                                {todo.title}
+                              </span>
+                              {todo.completed && (
+                                <span className="text-sm font-extrabold text-emerald-600 bg-emerald-100 border border-emerald-200 px-2.5 py-1 rounded-lg shadow-sm animate-pulse">
+                                  🎉 완료!
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -229,11 +232,10 @@ function App() {
                   )}
                 </div>
 
-                {/* 하단 등록/수정 시간 표시 영역 (새로 추가한 항목부터 표시됨) */}
                 <div className="mt-3 text-xs text-slate-400 flex gap-4 pl-10">
                   {todo.createdAt && <p>등록: {formatDate(todo.createdAt)}</p>}
-                  {todo.updatedAt && todo.createdAt !== todo.updatedAt && (
-                    <p>수정: {formatDate(todo.updatedAt)}</p>
+                  {todo.editedAt && (
+                    <p className="text-cyan-600">수정: {formatDate(todo.editedAt)}</p>
                   )}
                 </div>
               </li>

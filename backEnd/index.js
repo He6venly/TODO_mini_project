@@ -24,9 +24,10 @@ mongoose.connect(uri, {
 const todoSchema = new mongoose.Schema({
   title: { type: String, required: true },
   completed: { type: Boolean, default: false },
-  dueDate: { type: Date, default: null } 
-}, { 
-  timestamps: true 
+  dueDate: { type: Date, default: null },
+  // '등록 시간'과 '수정 시간'을 위한 명시적 공간을 만듭니다.
+  createdAt: { type: Date, default: Date.now },
+  editedAt: { type: Date, default: null } 
 });
 const Todo = mongoose.model('Todo', todoSchema);
 
@@ -38,14 +39,33 @@ app.get('/api/todos', async (req, res) => {
 });
 
 app.post('/api/todos', async (req, res) => {
-  const newTodo = new Todo({ title: req.body.title });
-  await newTodo.save();
-  res.json(newTodo);
+  try {
+    const newTodo = new Todo({
+      title: req.body.title,
+      dueDate: req.body.dueDate
+    });
+    const savedTodo = await newTodo.save();
+    res.json(savedTodo);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.put('/api/todos/:id', async (req, res) => {
-  const todo = await Todo.findByIdAndUpdate(req.params.id, { completed: req.body.completed }, { new: true });
-  res.json(todo);
+  try {
+    const updatedTodo = await Todo.findByIdAndUpdate(
+      req.params.id,
+      {
+        title: req.body.title,
+        completed: req.body.completed,
+        editedAt: req.body.editedAt 
+      },
+      { new: true } // 업데이트가 끝난 최신 데이터를 프론트엔드로 돌려줍니다.
+    );
+    res.json(updatedTodo);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.delete('/api/todos/:id', async (req, res) => {
