@@ -23,9 +23,13 @@ mongoose.connect(uri, {
 // Todo 스키마 (데이터베이스에 들어갈 데이터 구조)
 const todoSchema = new mongoose.Schema({
   title: { type: String, required: true },
-  completed: { type: Boolean, default: false }
+  completed: { type: Boolean, default: false },
+  dueDate: { type: Date, default: null } 
+}, { 
+  timestamps: true 
 });
 const Todo = mongoose.model('Todo', todoSchema);
+
 
 // API 엔드포인트 (CRUD 기능 모음)
 app.get('/api/todos', async (req, res) => {
