@@ -114,38 +114,41 @@ function App() {
   const remainingTodos = todos.filter(todo => !todo.completed).length;
 
   return (
-    <div className="min-h-screen bg-slate-100 py-10 flex justify-center">
-      <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl p-8 h-fit relative">
+    <div className="min-h-screen bg-slate-100 py-6 px-4 md:py-10 flex justify-center">
+      
+      <div className="bg-white w-full max-w-lg md:max-w-2xl rounded-3xl shadow-2xl p-6 md:p-10 h-fit relative">
         
-        <div className="absolute top-6 right-8 text-right">
-          <p className="text-sm font-bold text-cyan-800">{currentTime.toLocaleDateString('ko-KR')}</p>
-          <p className="text-2xl font-black text-slate-700 font-mono tracking-tighter">
+        <div className="text-center md:text-right md:absolute md:top-6 md:right-8 mb-6 md:mb-0">
+          <p className="text-xs md:text-sm font-bold text-cyan-800">{currentTime.toLocaleDateString('ko-KR')}</p>
+          <p className="text-xl md:text-2xl font-black text-slate-700 font-mono tracking-tighter">
             {currentTime.toLocaleTimeString('en-US', { hour12: false })}
           </p>
         </div>
 
-        <div className="flex flex-col items-center mb-10 pb-6 border-b-2 border-slate-100 mt-4">
-          <img src={logo} alt="창원대학교 로고" className="h-16 mb-4" />
-          <h1 className="text-4xl font-extrabold text-center text-slate-900">
+        <div className="flex flex-col items-center mb-6 pb-6 border-b-2 border-slate-100 md:mt-4">
+          <img src={logo} alt="창원대학교 로고" className="h-14 md:h-16 mb-4" />
+          {/* 타이틀 글자 크기 조정 */}
+          <h1 className="text-3xl md:text-4xl font-extrabold text-center text-slate-900">
             나의 할 일 목록 📝
           </h1>
-          <p className="text-xl font-medium text-slate-600 mt-4">
+          <p className="text-lg md:text-xl font-medium text-slate-600 mt-3">
             남은 할 일: <span className="text-cyan-700 font-bold">{remainingTodos}</span>개
           </p>
         </div>
         
-        <form onSubmit={addTodo} className="flex flex-col mb-8 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200">
-          <div className="flex gap-3">
+        <form onSubmit={addTodo} className="flex flex-col mb-8 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-inner">
+          <div className="flex flex-col sm:flex-row gap-3">
             <input 
               type="text" 
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              className="flex-1 border-2 border-slate-300 rounded-xl p-3 text-lg outline-none focus:border-cyan-700 transition-colors shadow-inner"
+              className="flex-1 border-2 border-slate-300 rounded-xl p-3 text-lg outline-none focus:border-cyan-700 transition-colors shadow-inner w-full"
               placeholder="오늘의 중요한 일을 입력하세요..."
             />
+            {/* 추가 버튼: 모바일에서는 `w-full`로 한 줄 꽉 차게 변경 */}
             <button 
               type="submit" 
-              className="bg-cyan-700 text-white px-8 rounded-xl hover:bg-cyan-800 transition-colors font-bold text-lg active:scale-95 shadow-md shrink-0"
+              className="bg-cyan-700 text-white p-3 sm:px-8 rounded-xl hover:bg-cyan-800 transition-colors font-bold text-lg active:scale-95 shadow-md shrink-0 w-full sm:w-auto"
             >
               추가
             </button>
@@ -166,7 +169,7 @@ function App() {
                 type="date" 
                 value={dDayDate}
                 onChange={(e) => setDdayDate(e.target.value)}
-                className="border-2 border-slate-300 rounded-lg p-1 px-3 outline-none focus:border-cyan-700 text-slate-700"
+                className="border-2 border-slate-300 rounded-lg p-1 px-3 outline-none focus:border-cyan-700 text-slate-700 w-auto"
               />
             )}
           </div>
@@ -176,46 +179,48 @@ function App() {
           {todos.map((todo) => {
             const dDayInfo = calculateDday(todo.dueDate);
             return (
-              <li key={todo._id} className="flex flex-col bg-slate-50 p-5 rounded-2xl border-2 border-slate-100 shadow-sm hover:shadow-lg transition-shadow">
+              <li key={todo._id} className="flex flex-col bg-slate-50 p-4 rounded-2xl border-2 border-slate-100 shadow-sm hover:shadow-lg transition-shadow">
                 
-                <div className="flex justify-between items-start w-full">
+                <div className="flex flex-col sm:flex-row justify-between items-start w-full gap-3 sm:gap-0">
                   {editingId === todo._id ? (
-                    <div className="flex-1 flex gap-2 mr-2">
+                    // [수정 모드 화면]
+                    <div className="flex-1 flex gap-2 w-full">
                       <input 
                         type="text"
                         value={editText}
                         onChange={(e) => setEditText(e.target.value)}
-                        className="flex-1 border-2 border-cyan-500 rounded-xl p-2 text-lg outline-none"
+                        className="flex-1 border-2 border-cyan-500 rounded-xl p-2 text-lg outline-none w-full"
                         autoFocus
                       />
-                      <button onClick={() => saveEdit(todo._id)} className="bg-green-500 text-white px-4 py-2 rounded-xl font-bold hover:bg-green-600 active:scale-95 shrink-0">저장</button>
-                      <button onClick={() => setEditingId(null)} className="bg-gray-400 text-white px-4 py-2 rounded-xl font-bold hover:bg-gray-500 active:scale-95 shrink-0">취소</button>
+                      <div className="flex gap-2 shrink-0">
+                        <button onClick={() => saveEdit(todo._id)} className="bg-green-500 text-white px-4 py-2 rounded-xl font-bold hover:bg-green-600 active:scale-95 text-sm md:text-base">저장</button>
+                        <button onClick={() => setEditingId(null)} className="bg-gray-400 text-white px-4 py-2 rounded-xl font-bold hover:bg-gray-500 active:scale-95 text-sm md:text-base">취소</button>
+                      </div>
                     </div>
                   ) : (
+                    // [기본 모드 화면]
                     <>
-                      {/* 👇 여기서 부모 div의 클릭 이벤트를 빼고 텍스트 커서 모양을 기본으로 바꿨습니다! */}
-                      <div className="flex items-center flex-1 break-all">
-                        {/* 👇 클릭 이벤트(onChange)를 오직 이 체크박스에만 부여했습니다! */}
+                      <div className="flex items-center flex-1 break-all w-full">
                         <input 
                           type="checkbox" 
                           checked={todo.completed} 
                           onChange={() => toggleTodo(todo._id, todo.completed)} 
                           className="w-6 h-6 text-cyan-700 cursor-pointer mr-4 accent-cyan-700 shrink-0"
                         />
-                        <div className="flex flex-col">
-                          <div className="flex items-center gap-3 flex-wrap">
+                        <div className="flex flex-col w-full">
+                          <div className="flex items-center gap-2 flex-wrap">
                             {dDayInfo && !todo.completed && (
-                              <span className={`${dDayInfo.color} text-white text-sm font-extrabold px-3 py-1.5 rounded-lg tracking-wide`}>
+                              <span className={`${dDayInfo.color} text-white text-xs md:text-sm font-extrabold px-3 py-1.5 rounded-lg tracking-wide shrink-0`}>
                                 {dDayInfo.text}
                               </span>
                             )}
                             
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 flex-wrap">
                               <span className={`text-xl font-semibold ${todo.completed ? 'line-through text-slate-400' : 'text-slate-800'}`}>
                                 {todo.title}
                               </span>
                               {todo.completed && (
-                                <span className="text-sm font-extrabold text-emerald-600 bg-emerald-100 border border-emerald-200 px-2.5 py-1 rounded-lg shadow-sm animate-pulse">
+                                <span className="text-xs font-extrabold text-emerald-600 bg-emerald-100 border border-emerald-200 px-2.5 py-1 rounded-lg shadow-sm animate-pulse shrink-0">
                                   🎉 완료!
                                 </span>
                               )}
@@ -224,15 +229,17 @@ function App() {
                         </div>
                       </div>
                       
-                      <div className="flex gap-2 ml-4 shrink-0">
-                        <button onClick={() => startEdit(todo)} className="text-cyan-700 hover:text-cyan-900 font-bold p-2 text-sm active:scale-90 bg-cyan-100 rounded-lg">수정</button>
-                        <button onClick={() => deleteTodo(todo._id)} className="text-red-500 hover:text-red-700 font-bold p-2 text-sm active:scale-90 bg-red-100 rounded-lg">삭제</button>
+                      
+                      <div className="flex gap-2 sm:ml-4 shrink-0 w-full sm:w-auto justify-end sm:justify-start">
+                        <button onClick={() => startEdit(todo)} className="text-cyan-700 hover:text-cyan-900 font-bold p-2 px-3 text-sm active:scale-90 bg-cyan-100 rounded-lg">수정</button>
+                        <button onClick={() => deleteTodo(todo._id)} className="text-red-500 hover:text-red-700 font-bold p-2 px-3 text-sm active:scale-90 bg-red-100 rounded-lg">삭제</button>
                       </div>
                     </>
                   )}
                 </div>
 
-                <div className="mt-3 text-xs text-slate-400 flex gap-4 pl-10">
+                
+                <div className="mt-3 text-xs text-slate-400 flex flex-wrap gap-x-4 gap-y-1 pl-10">
                   {todo.createdAt && <p>등록: {formatDate(todo.createdAt)}</p>}
                   {todo.editedAt && (
                     <p className="text-cyan-600">수정: {formatDate(todo.editedAt)}</p>
@@ -242,8 +249,8 @@ function App() {
             );
           })}
           {todos.length === 0 && (
-            <div className="text-center py-10">
-              <p className="text-slate-500 mt-2 text-lg">아직 등록된 할 일이 없습니다.</p>
+            <div className="text-center py-10 px-4">
+              <p className="text-slate-500 mt-2 text-base md:text-lg">아직 등록된 할 일이 없습니다.</p>
               <p className="text-slate-400 text-sm mt-1">새로운 목표를 추가해 보세요!</p>
             </div>
           )}
